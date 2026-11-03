@@ -52,6 +52,21 @@ export const assetsGet: INodeProperties[] = [
         },
     },
     {
+        displayName: 'Semantic Search',
+        name: 'semantic',
+        type: 'boolean',
+        default: false,
+        displayOptions: { show: showOnlyForAssetsGet },
+        description: 'Whether to run an AI-embedding semantic search using the Search value, returning a single page ordered by relevance. Requires Semantic Search to be enabled for the workspace and a non-blank Search. Cannot be combined with Tag, Custom Field, Created At, or Cursor.',
+        routing: {
+            send: {
+                type: 'query',
+                property: 'semantic',
+                value: '={{$value ? "true" : undefined}}',
+            },
+        },
+    },
+    {
         displayName: 'Tag',
         name: 'tag',
         type: 'string',
