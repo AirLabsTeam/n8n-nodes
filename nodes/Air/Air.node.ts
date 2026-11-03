@@ -17,6 +17,8 @@ import { boardsGet } from './resources/boards/get';
 import { boardsRemoveAssetDescription } from './resources/boards/assetsRemove';
 import { importsCreateDescription } from './resources/imports/create';
 import { importsGetStatusDescription } from './resources/imports/getStatus';
+import { cdnLinksDescription } from './resources/cdnLinks';
+import { shareLinksDescription } from './resources/shareLinks';
 
 export class Air implements INodeType {
 	description: INodeTypeDescription = {
@@ -63,12 +65,20 @@ export class Air implements INodeType {
                         value: 'boards',
                     },
                     {
+                        name: 'CDN Link',
+                        value: 'cdnLinks',
+                    },
+                    {
                         name: "Custom Field",
                         value: 'customFields',
                     },
                     {
                         name: 'Import',
                         value: 'imports',
+                    },
+                    {
+                        name: 'Share Link',
+                        value: 'shareLinks',
                     },
                     {
                         name: "Tag",
@@ -466,6 +476,110 @@ export class Air implements INodeType {
                 ],
                 default: 'get',
             },
+            {
+                displayName: 'Operation',
+                name: 'operation',
+                type: 'options',
+                noDataExpression: true,
+                displayOptions: {
+                    show: {
+                        resource: [
+                            'cdnLinks',
+                        ],
+                    },
+                },
+                options: [
+                    {
+                        name: 'Create',
+                        value: 'create',
+                        action: 'Create cdn link',
+                        description: 'Create an evergreen or version-pinned CDN link for an asset',
+                        routing: {
+                            request: {
+                                method: 'POST',
+                                url: '={{`/assets/${String($parameter["assetId"] || "").trim()}/cdnLinks`}}',
+                            },
+                        },
+                    },
+                    {
+                        name: 'List',
+                        value: 'list',
+                        action: 'List cdn links',
+                        description: 'List all CDN links for an asset',
+                        routing: {
+                            request: {
+                                method: 'GET',
+                                url: '={{`/assets/${String($parameter["assetId"] || "").trim()}/cdnLinks`}}',
+                            },
+                        },
+                    },
+                    {
+                        name: 'Set Active',
+                        value: 'setActive',
+                        action: 'Activate or deactivate cdn link',
+                        description: 'Activate or deactivate a CDN link',
+                        routing: {
+                            request: {
+                                method: 'PATCH',
+                                url: '={{`/assets/${String($parameter["assetId"] || "").trim()}/cdnLinks/${String($parameter["cdnLinkId"] || "").trim()}`}}',
+                            },
+                        },
+                    },
+                ],
+                default: 'list',
+            },
+            {
+                displayName: 'Operation',
+                name: 'operation',
+                type: 'options',
+                noDataExpression: true,
+                displayOptions: {
+                    show: {
+                        resource: [
+                            'shareLinks',
+                        ],
+                    },
+                },
+                options: [
+                    {
+                        name: 'Create',
+                        value: 'create',
+                        action: 'Create share link',
+                        description: 'Create a share link for an asset or board',
+                        routing: {
+                            request: {
+                                method: 'POST',
+                                url: '={{`/${$parameter["shareLinkTarget"]}/${String($parameter[$parameter["shareLinkTarget"] === "boards" ? "boardId" : "assetId"] || "").trim()}/share-links`}}',
+                            },
+                        },
+                    },
+                    {
+                        name: 'List',
+                        value: 'list',
+                        action: 'List share links',
+                        description: 'List the share links of an asset or board',
+                        routing: {
+                            request: {
+                                method: 'GET',
+                                url: '={{`/${$parameter["shareLinkTarget"]}/${String($parameter[$parameter["shareLinkTarget"] === "boards" ? "boardId" : "assetId"] || "").trim()}/share-links`}}',
+                            },
+                        },
+                    },
+                    {
+                        name: 'Update',
+                        value: 'update',
+                        action: 'Update share link',
+                        description: 'Change the settings of a share link',
+                        routing: {
+                            request: {
+                                method: 'PATCH',
+                                url: '={{`/${$parameter["shareLinkTarget"]}/${String($parameter[$parameter["shareLinkTarget"] === "boards" ? "boardId" : "assetId"] || "").trim()}/share-links/${String($parameter["shareLinkId"] || "").trim()}`}}',
+                            },
+                        },
+                    },
+                ],
+                default: 'list',
+            },
             ...customFieldCreateDescription,
             ...customFieldUpdateDescription,
             ...customFieldValueCreateDescription,
@@ -487,6 +601,8 @@ export class Air implements INodeType {
             ...boardsRemoveAssetDescription,
             ...importsCreateDescription,
             ...importsGetStatusDescription,
+            ...cdnLinksDescription,
+            ...shareLinksDescription,
 		]
 	};
 }
