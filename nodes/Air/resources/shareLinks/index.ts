@@ -88,12 +88,51 @@ const sharedSettings: INodeProperties[] = [
 		routing: { send: { type: 'body', property: 'password', value: emptyToUndefined } },
 	},
 	{
+		displayName: 'Remove Expiration',
+		name: 'removeExpiration',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { '/operation': ['update'] } },
+		description: 'Whether to remove the expiration date. Ignored if Expires At is also set.',
+		routing: {
+			send: {
+				type: 'body',
+				property: 'expiresAt',
+				value: '={{$value && !$parameter["shareLinkSettings"]?.expiresAt ? null : undefined}}',
+			},
+		},
+	},
+	{
+		displayName: 'Remove Password',
+		name: 'removePassword',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { '/operation': ['update'] } },
+		description: 'Whether to remove the existing password. Ignored if Password is also set.',
+		routing: {
+			send: {
+				type: 'body',
+				property: 'password',
+				value: '={{$value && !$parameter["shareLinkSettings"]?.password ? null : undefined}}',
+			},
+		},
+	},
+	{
 		displayName: 'Require Account',
 		name: 'requireAccount',
 		type: 'boolean',
 		default: false,
 		description: 'Whether visitors must sign in to Air',
 		routing: { send: { type: 'body', property: 'requireAccount' } },
+	},
+	{
+		displayName: 'Show All Versions',
+		name: 'showAllVersions',
+		type: 'boolean',
+		default: false,
+		displayOptions: { show: { '/shareLinkTarget': ['assets'] } },
+		description: 'Whether visitors can browse other versions (version-pinned links only)',
+		routing: { send: { type: 'body', property: 'showAllVersions' } },
 	},
 ];
 
@@ -139,22 +178,28 @@ export const shareLinksDescription: INodeProperties[] = [
 	},
 	// List
 	{
-		displayName: 'Limit',
-		name: 'limit',
-		type: 'string',
-		default: '12',
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		default: false,
 		displayOptions: { show: { ...showOnlyForShareLinksList, shareLinkTarget: ['assets'] } },
-		description: 'The max number of share links to return (max 200)',
-		routing: { send: { type: 'query', property: 'limit', value: '={{$value !== "" ? $value : undefined}}' } },
+		description: 'Whether to return all results or only up to a given limit',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'limit',
+				value: '={{$value ? 200 : $parameter.limit}}',
+			},
+		},
 	},
 	{
-		displayName: 'Cursor',
-		name: 'cursor',
-		type: 'string',
-		default: '',
-		displayOptions: { show: { ...showOnlyForShareLinksList, shareLinkTarget: ['assets'] } },
-		description: 'Cursor to the next page of share links',
-		routing: { send: { type: 'query', property: 'cursor', value: '={{$value !== "" ? $value : undefined}}' } },
+		displayName: 'Limit',
+		name: 'limit',
+		type: 'number',
+		default: 50,
+		typeOptions: { minValue: 1, maxValue: 200 },
+		displayOptions: { show: { ...showOnlyForShareLinksList, shareLinkTarget: ['assets'], returnAll: [false] } },
+		description: 'Max number of results to return',
 	},
 	// Create: which version an asset share link shows
 	{
@@ -206,44 +251,5 @@ export const shareLinksDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForShareLinksWrite },
 		description: 'Omitted settings keep their current value (update) or follow your workspace defaults (create). Some settings depend on your plan.',
 		options: sharedSettings,
-	},
-	{
-		displayName: 'Show All Versions',
-		name: 'showAllVersions',
-		type: 'boolean',
-		default: false,
-		displayOptions: { show: { ...showOnlyForShareLinksWrite, shareLinkTarget: ['assets'] } },
-		description: 'Whether visitors can browse other versions (version-pinned links only)',
-		routing: { send: { type: 'body', property: 'showAllVersions' } },
-	},
-	{
-		displayName: 'Remove Password',
-		name: 'removePassword',
-		type: 'boolean',
-		default: false,
-		displayOptions: { show: showOnlyForShareLinksUpdate },
-		description: 'Whether to remove the existing password. Ignored if a password is set above.',
-		routing: {
-			send: {
-				type: 'body',
-				property: 'password',
-				value: '={{$value && !$parameter["shareLinkSettings"]?.password ? null : undefined}}',
-			},
-		},
-	},
-	{
-		displayName: 'Remove Expiration',
-		name: 'removeExpiration',
-		type: 'boolean',
-		default: false,
-		displayOptions: { show: showOnlyForShareLinksUpdate },
-		description: 'Whether to remove the expiration date. Ignored if an expiration is set above.',
-		routing: {
-			send: {
-				type: 'body',
-				property: 'expiresAt',
-				value: '={{$value && !$parameter["shareLinkSettings"]?.expiresAt ? null : undefined}}',
-			},
-		},
 	},
 ];

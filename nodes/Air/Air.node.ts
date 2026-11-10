@@ -563,6 +563,24 @@ export class Air implements INodeType {
                                 method: 'GET',
                                 url: '={{`/${$parameter["shareLinkTarget"]}/${String($parameter[$parameter["shareLinkTarget"] === "boards" ? "boardId" : "assetId"] || "").trim()}/share-links`}}',
                             },
+                            operations: {
+                                pagination: {
+                                    type: 'generic',
+                                    properties: {
+                                        continue: '={{ $parameter.returnAll === true && $parameter.shareLinkTarget === "assets" && !!$response.body?.pagination?.hasMore }}',
+                                        request: {
+                                            qs: {
+                                                cursor: '={{ $response.body.pagination.cursor }}',
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            output: {
+                                postReceive: [
+                                    { type: 'rootProperty', properties: { property: 'data' } },
+                                ],
+                            },
                         },
                     },
                     {
